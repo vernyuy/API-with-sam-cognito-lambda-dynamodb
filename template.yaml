@@ -2,6 +2,17 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Serverless patterns - Amazon API Gateway to AWS Lambda to Amazon DynamoDB
 Resources:
+  MyApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors: "'*'"
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: arn:aws:cognito-idp:us-east-1:132260253285:userpool/us-east-1_Cq10mheEv
+
   LambdaFunction:
     Type: AWS::Serverless::Function
     Description: 'Lambda function inserts data into DynamoDB table'
@@ -19,6 +30,7 @@ Resources:
           Properties:
             Path: /
             Method: POST
+            RestApiId: !Ref MyApi
 
   GetLambdaFunction:
     Type: AWS::Serverless::Function
@@ -37,7 +49,8 @@ Resources:
           Properties:
             Path: /
             Method: GET
-
+            RestApiId: !Ref MyApi
+            
   DeleteLambdaFunction:
     Type: AWS::Serverless::Function
     Description: 'Lambda function inserts data into DynamoDB table'
@@ -54,7 +67,8 @@ Resources:
           Type: Api
           Properties:
             Path: /
-            Method: DELETE  
+            Method: DELETE 
+            RestApiId: !Ref MyApi 
 
   UpdateLambdaFunction:
     Type: AWS::Serverless::Function
@@ -71,14 +85,36 @@ Resources:
         ApiEvent:
           Type: Api
           Properties:
+            RestApiId: !Ref MyApi 
             Path: /
-            Method: PUT          
+            Method: PUT 
+
+  MyCognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: test1
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+      UsernameAttributes:
+        - email
+      Schema:
+        - AttributeDataType: String
+          Name: email
+          Required: false
+  
+  MyCognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: us-east-1_Cq10mheEv
+      ClientName: test1
+      GenerateSecret: false       
 
   DynamoDBTable:
     Type: AWS::Serverless::SimpleTable
     Properties:
       TableName: WeatherData
-Outputs:
-  EndpointUrl:
-    Description: 'HTTP REST endpoint URL'
-    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod'
+# Outputs:
+#   EndpointUrl:
+#     Description: 'HTTP REST endpoint URL'
+#     Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod'

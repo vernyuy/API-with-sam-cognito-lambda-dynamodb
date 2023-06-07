@@ -4,14 +4,19 @@
 import boto3
 import json
 from boto3.dynamodb.conditions import Key, Attr
+import random
 dynamodb_client = boto3.client('dynamodb')
 dynamodb = boto3.resource('dynamodb')
-import random
+
 
 
 def lambda_handler(event, context):
+  print(event)
+  print(context)
   Weather = json.loads(event['body'])['Weather']
-  id = random.randrange(100, 999)
+  print(Weather)
+  id = str(random.randrange(100, 999))
+  print(id)
   dynamodb_client.put_item(TableName='WeatherData', Item={'id': {'S': id}, 'Weather': {'S': Weather}})
   return {
       'statusCode': 200,
@@ -22,9 +27,10 @@ def lambda_handler(event, context):
 def getWeather(event, context):
   table = dynamodb.Table('WeatherData')
   response = table.scan(TableName='WeatherData')
+  print(response)
   return {
     'statusCode': 200,
-    'body': response['Items']
+    'body': json.dumps(response['Items'])
   }
 
 
@@ -38,7 +44,7 @@ def DeleteWeather(event, context):
     )
     return {
         'statusCode' : 200,
-        'message': "Delete Succeessfull"
+        'body': "Delete Succeessfull"
     }
 
 
