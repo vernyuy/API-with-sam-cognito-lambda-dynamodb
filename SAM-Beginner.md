@@ -544,39 +544,11 @@ Once you are done you can click on send.
 Open postman and send a post request to your end point.
 
 ![postman post request](img/getPostman.png)
-<!--AWSTemplateFormatVersion: '2010-09-09'
-    Transform: AWS::Serverless-2016-10-31
-    Description: Serverless patterns - Amazon API Gateway to AWS Lambda to Amazon DynamoDB
 
-    Resources:
-        MyApi:
-            Type: AWS::Serverless::Api
-            Properties:
-            StageName: Prod
-            Cors: "'*'"
-            Auth:
-                DefaultAuthorizer: CognitoAuthorizer
-                Authorizers:
-                CognitoAuthorizer:
-                    UserPoolArn: arn:aws:cognito-idp:us-east-1:132260253285:userpool/us-east-1_Cq10mheEv
+To Know more about cognito, click [here](https://github.com/vernyuy/intro_to_cognito/blob/main/cognito.md)
 
-Use code with caution. Learn more
-This application defines a single Lambda function called HelloWorldFunction. The function is defined to use the Python 3.8 runtime and is triggered by an API Gateway endpoint at /hello.
+Reference
 
-To build and deploy this application, use the following commands:
+[Educloud](educloud.academy).
 
-Code snippet
-```sam build```
-```sam deploy```
-
-Use code with caution. Learn more
-These commands will create a ZIP file that contains the application code and dependencies, and then deploy the application to AWS.
-
-Once the application is deployed, you can test it by making a GET request to the /hello endpoint. For example, you can use the following curl command:
-
-Code snippet
-curl https://<API_ENDPOINT>/hello
-Use code with caution. Learn more
-This command will return the following response:
-
-Co -->
+👍👏👍
