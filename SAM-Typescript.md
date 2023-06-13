@@ -245,3 +245,284 @@ export const deleteItem = async (event: APIGatewayProxyEvent): Promise<APIGatewa
 ```
 
 Open PostMan and send a delete request to your API and provide the id of the item you want to delete in the body.
+
+#### To update a specific Item
+Add the following function to ```app.ts``` file.
+
+   ```typescript
+    export const updateItem = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
+        var blog_id = Math.floor(Math.random() * 1000).toString(); 
+        var params = {
+            "Item":{
+                "id":{
+                    "S": event.body.id
+                },
+                "title": {
+                    "S":  event.body.title
+                },
+                "body": {
+                    "S":  event.body.body
+                }
+            },
+            "TableName": 'sam12-ExampleTable-4DPPPE0DQOO4',
+            "ReturnConsumedCapacity": "TOTAL",
+        };
+        let response: APIGatewayProxyResult;
+            try {
+                const test = await client.send(new PutItemCommand(params))
+                console.log("Hello world",test)
+                response = {
+                    statusCode: 200,
+                    body: JSON.stringify({
+                        message: 'Item created successfully',
+                    }),
+                };
+            } catch (err: unknown) {
+                console.log(err);
+                response = {
+                    statusCode: 500,
+                    body: JSON.stringify({
+                        message: err instanceof Error ? err.message : 'some error happened',
+                    }),
+                };
+            }
+            return response; 
+        
+    };
+  ```
+
+Also update ```template.yaml``` file by adding this function resource.
+
+  ```yaml
+    UpdateItem:
+        Type: AWS::Serverless::Function
+        Properties:
+        CodeUri: hello-world/
+        Handler: app.updateItem
+        Runtime: nodejs14.x
+        Architectures:
+            - x86_64
+        Events:
+            HelloWorld:
+            Type: Api 
+            Properties:
+                Path: /post
+                Method: put
+        Policies:
+            - DynamoDBCrudPolicy:
+                TableName: !Ref ExampleTable
+  ```
+
+Now we have the APIs perform the basic crud methods. But we have a problem in that everyone can access our APIs. So lets add Cognito authorizer to the API such that only authorize persons can access the our API.
+
+#### Adding Amazon Cognito to secure our API from public access.
+
+1. Head over to aws console and create a cognito user  pool. If you don't know how to do this, click [here]() a walk through guide.
+2. Open ```template.yaml``` and add the following code in ```resouces```
+
+```yaml
+  MyApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors: "'*'"
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: arn:aws:cognito-idp:eu-west-1:132260253285:userpool/eu-west-1_dDfqIG226
+```
+The above code saves as your RestApiKey.
+
+3. Add cognito userpool resource
+
+```yaml
+  MyCognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: userPoolName
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+      UsernameAttributes:
+        - email
+      Schema:
+        - AttributeDataType: String
+          Name: email
+          Required: false
+```
+
+4. Add cognito user pool client resoure
+
+```yaml
+  MyCognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: userPoolId
+      ClientName: clientName
+      GenerateSecret: false
+```
+
+5. Your final ```yaml``` file should look as such.
+
+```yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  sam12
+
+  Sample SAM Template for sam12
+  
+Globals:
+  Function:
+    Timeout: 3
+    MemorySize: 128
+Parameters:
+  SourceBucketName:
+    Type: String
+  DestinationBucketName:
+    Type: String
+
+Resources:
+  MyApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors: "'*'"
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: arn:aws:cognito-idp:eu-west-1:132260253285:userpool/eu-west-1_dDfqIG226
+
+  GetItemFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: hello-world/
+      Handler: app.lambdaHandler
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      Events:
+        GetRoot:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MyApi
+            Path: /post
+            Method: get
+      Policies:
+        - AmazonDynamoDBFullAccess
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ExampleTable
+
+  InsertItem:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: hello-world/
+      Handler: app.insertItem
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      Events:
+        GetRoot:
+          Type: Api
+          Properties:
+            RestApiId: !Ref MyApi
+            Path: /post
+            Method: post
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ExampleTable
+
+  DeleteItem:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: hello-world/
+      Handler: app.deleteItem
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      Events:
+        HelloWorld:
+          Type: Api 
+          Properties:
+            RestApiId: !Ref MyApi
+            Path: /post
+            Method: delete
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ExampleTable
+
+  UpdateItem:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: hello-world/
+      Handler: app.deleteItem
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      Events:
+        HelloWorld:
+          Type: Api 
+          Properties:
+            RestApiId: !Ref MyApi
+            Path: /post
+            Method: put
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ExampleTable
+
+    Metadata: # Manage esbuild properties
+      BuildMethod: esbuild
+      BuildProperties:
+        Minify: true
+        Target: "es2020"
+        EntryPoints: 
+        - app.ts
+
+  ExampleTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      TableName: sam12-ExampleTable-4DPPPE0DQOO4
+      AttributeDefinitions:
+        - AttributeName: "id"
+          AttributeType: "S"
+      KeySchema:
+        - AttributeName: "id"
+          KeyType: "HASH"
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+  MyCognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: test1
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+      UsernameAttributes:
+        - email
+      Schema:
+        - AttributeDataType: String
+          Name: email
+          Required: false
+  
+  MyCognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: eu-west-1_dDfqIG226
+      ClientName: test1
+      GenerateSecret: false
+  ## Lambda function
+Outputs:
+  HelloWorldApi:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/post/"
+  HelloWorldFunction:
+    Description: "Hello World Lambda Function ARN"
+    Value: !GetAtt HelloWorldFunction.Arn
+  HelloWorldFunctionIamRole:
+    Description: "Implicit IAM Role created for Hello World function"
+    Value: !GetAtt HelloWorldFunctionRole.Arn
+```

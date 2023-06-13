@@ -20,12 +20,12 @@ Resources:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
-      # Cors: "'*'"
-  #     Auth:
-  #       DefaultAuthorizer: CognitoAuthorizer
-  #       Authorizers:
-  #         CognitoAuthorizer:
-  #           UserPoolArn: arn:aws:cognito-idp:eu-west-1:132260253285:userpool/eu-west-1_dDfqIG226
+      Cors: "'*'"
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: arn:aws:cognito-idp:eu-west-1:132260253285:userpool/eu-west-1_dDfqIG226
 
   HelloWorldFunction:
     Type: AWS::Serverless::Function 
