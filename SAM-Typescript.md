@@ -526,3 +526,19 @@ Outputs:
     Description: "Implicit IAM Role created for Hello World function"
     Value: !GetAtt HelloWorldFunctionRole.Arn
 ```
+
+Once you are set,
+
+run ```sam build``` to build your final project.
+
+```sam deploy --guided``` to deploy your final project.
+
+Your API is now available and secured once your deployment is done.
+
+Go to ```aws console``` search for ```lambda``` you will see all the lambda functions you created.
+
+Click one of the functions you just created either ``GetItem``, ```UpdateItem```, ```DeleteItem``` or ```CreateItem```, APIGATEWAY is linked to the function as a ```Trigger```, Click on the APIGATEWAY, scroll down and click on details
+
+![](img/sl.png)
+
+You can make request on the ```API endpoint``` provided
