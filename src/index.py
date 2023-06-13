@@ -5,16 +5,13 @@ import boto3
 import json
 from boto3.dynamodb.conditions import Key, Attr
 import random
+
 dynamodb_client = boto3.client('dynamodb')
-dynamodb = boto3.resource('dynamodb')
 
 
 
 def lambda_handler(event, context):
-  print(event)
-  print(context)
   Weather = json.loads(event['body'])['Weather']
-  print(Weather)
   id = str(random.randrange(100, 999))
   print(id)
   dynamodb_client.put_item(TableName='WeatherData', Item={'id': {'S': id}, 'Weather': {'S': Weather}})

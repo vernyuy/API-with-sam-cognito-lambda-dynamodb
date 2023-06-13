@@ -11,15 +11,15 @@ Resources:
         DefaultAuthorizer: CognitoAuthorizer
         Authorizers:
           CognitoAuthorizer:
-            UserPoolArn: arn:aws:cognito-idp:us-east-1:132260253285:userpool/us-east-1_Cq10mheEv
+            UserPoolArn: !GetAtt WeatherUserPool.Arn
 
-  LambdaFunction:
+  CreateWeather:
     Type: AWS::Serverless::Function
     Description: 'Lambda function inserts data into DynamoDB table'
     Properties:
-      FunctionName: WeatherFunction
-      Handler: index.lambda_handler
-      Runtime: python3.7
+      FunctionName: CreateWeather
+      Handler: createWeatherHandler.lambda_handler
+      Runtime: python3.10
       CodeUri: src/
       Policies:
         DynamoDBCrudPolicy:
@@ -32,13 +32,14 @@ Resources:
             Method: POST
             RestApiId: !Ref MyApi
 
-  GetLambdaFunction:
+  GetWeatherFunction:
     Type: AWS::Serverless::Function
     Description: 'Lambda function inserts data into DynamoDB table'
+    DependsOn: Cognito
     Properties:
-      FunctionName: GetWeatherFunction
-      Handler: index.getWeather
-      Runtime: python3.7
+      FunctionName: GetAllWeatherFunction
+      Handler: getWeatherHandler.getAllWeather
+      Runtime: python3.10
       CodeUri: src/
       Policies:
         DynamoDBCrudPolicy:
@@ -51,13 +52,13 @@ Resources:
             Method: GET
             RestApiId: !Ref MyApi
             
-  DeleteLambdaFunction:
+  DeleteWeatherFunction:
     Type: AWS::Serverless::Function
     Description: 'Lambda function inserts data into DynamoDB table'
     Properties:
       FunctionName: DeleteWeatherFunction
-      Handler: index.DeleteWeather
-      Runtime: python3.7
+      Handler: DeleteWeatherHandler.DeleteWeather
+      Runtime: python3.10
       CodeUri: src/
       Policies:
         DynamoDBCrudPolicy:
@@ -75,8 +76,8 @@ Resources:
     Description: 'Lambda function inserts data into DynamoDB table'
     Properties:
       FunctionName: UpdateWeatherFunction
-      Handler: index.updateWeather
-      Runtime: python3.7
+      Handler: updateWeatherHandler.updateWeather
+      Runtime: python3.10
       CodeUri: src/
       Policies:
         DynamoDBCrudPolicy:
@@ -89,10 +90,10 @@ Resources:
             Path: /
             Method: PUT 
 
-  MyCognitoUserPool:
+  WeatherUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
-      UserPoolName: test1
+      UserPoolName: !GetAtt UserPoolName.userPoolName
       Policies:
         PasswordPolicy:
           MinimumLength: 8
@@ -103,18 +104,18 @@ Resources:
           Name: email
           Required: false
   
-  MyCognitoUserPoolClient:
+  WeatherUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
-      UserPoolId: us-east-1_Cq10mheEv
-      ClientName: test1
+      UserPoolId: !GetAtt WeatherUserPool.userPoolId
+      ClientName: !GetAtt WeatherUserPool.clientName
       GenerateSecret: false       
 
   DynamoDBTable:
     Type: AWS::Serverless::SimpleTable
     Properties:
       TableName: WeatherData
-# Outputs:
-#   EndpointUrl:
-#     Description: 'HTTP REST endpoint URL'
-#     Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod'
+Outputs:
+  EndpointUrl:
+    Description: 'HTTP REST endpoint URL'
+    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/weather'
