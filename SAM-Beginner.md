@@ -9,10 +9,10 @@ our infrastructure, api gateway for authorizing,authenticating and creating api 
 python for defining the content of our lambdas.
 
 ## Prerequisite
-1. [AWS Account](https://aws.amazon.com/)
-2. [AWS Command Line Interface (AWS CLI)](https://awscli.amazonaws.com/AWSCLIV2.msi)
-3. [SAM CLI](https://github.com/aws/aws-sam-cli/releases/latest/download/AWS_SAM_CLI_64_PY3.msi)
-4. [Python](https://www.python.org/ftp/python/3.11.4/python-3.11.4-amd64.exe)
+1. [AWS Account](https://aws.amazon.com/). Amazon Web Services (AWS) is the world's most comprehensive and broadly adopted cloud, offering over 200 fully featured services from data centers globally.
+2. [AWS Command Line Interface (AWS CLI)](https://awscli.amazonaws.com/AWSCLIV2.msi). The AWS CLI provides direct access to the public APIs of AWS services. You can explore a service's capabilities with the AWS CLI, and develop shell scripts to manage your resources
+3. [ AWS SAM CLI](https://github.com/aws/aws-sam-cli/releases/latest/download/AWS_SAM_CLI_64_PY3.msi). AWS Serverless Application Model Command Line Interface, provides a Lambda-like execution environment that lets you locally build, test, and debug applications defined by SAM templates or through the AWS Cloud Development Kit (CDK)
+4. [Python](https://www.python.org/ftp/python/3.11.4/python-3.11.4-amd64.exe). The programming language used in this project
 5. [VS Code](https://code.visualstudio.com/download) or Your favourite text editor.
 
 
@@ -24,8 +24,8 @@ python for defining the content of our lambdas.
  ![](img/lp.png)
 
 
-## Creating an SAM Project
-1. Initialize a new SAM application. Use the ```sam init``` command to initialize a new SAM application. This will create a directory for your application and download a default template.
+## Creating a SAM Project
+1. To kick off your new SAM application,With just ```sam init``` command, you'll be on your way to a brand new directory and a set of default templates to work with.
 
 
 ```
@@ -44,20 +44,14 @@ projectName
 ```
 
 
-**Now Lets go ahead and modify the default application to accomplish our target.**
+**Let's take the default and give it a little shakeup modification**
 
-Modify the hello_world folder to src.
-you can delete any other folder and file except samconfig.toml and template.yaml.
+Rename the hello_world folder to src.
+you can delete all files except ```samconfig.toml``` and ```template.yaml```.
 
-The final folder structure
 
     projectName
     ├── src
-        ├── createWeatherHandler.py
-        ├── getWeatherHandler.py
-        ├── deleteWeatherHandler.py
-        ├── updateWeatherHandler.py
-        ├── requirements.txt
     ├── samconfig.toml
     ├── README.md
     └── template.yaml
@@ -69,15 +63,14 @@ The final folder structure
 
 
 ## Create Lambda Function
-The first lambda will be to create/insert an item.
-In the ```src``` folder creat file with name ```createWeatherHandler.py```
+The first lambda will be to ```create/insert``` an item.
+In the ```src``` folder create file with name ```createWeatherHandler.py```
 
 2. Create a lambda handler function that is used to create items on dynamodb
 
   ```python
     import boto3
     import json
-    from boto3.dynamodb.conditions import Key, Attr
     import random
     
 
@@ -138,7 +131,6 @@ Create a new file ```getWeatherHandler.py``` in ```src``` folder and add the cod
   ```python
     import boto3
     import json
-    from boto3.dynamodb.conditions import Key, Attr
     import random
 
 
@@ -180,7 +172,6 @@ Create a new file ```deleteWeatherHandler.py``` in ```src``` folder and add the 
 
 import boto3
 import json
-from boto3.dynamodb.conditions import Key, Attr
 import random
 
 
@@ -228,7 +219,6 @@ Create a new file ```updateWeatherHandler.py``` in ```src``` folder and add the 
 ```python
 import boto3
 import json
-from boto3.dynamodb.conditions import Key, Attr
 import random
 
 
@@ -242,8 +232,20 @@ def updateWeather(event, context):
   }
   ```
 
+Final Project folder structure
 
+    projectName
+    ├── src
+        ├── createWeatherHandler.py
+        ├── getWeatherHandler.py
+        ├── deleteWeatherHandler.py
+        ├── updateWeatherHandler.py
+        ├── requirements.txt
+    ├── samconfig.toml
+    ├── README.md
+    └── template.yaml
 
+##### Building and Deploying the application
 
 1.  Build your application. Use the ```sam build``` command to build your application. This will create a ZIP file that contains your application code and dependencies.
 2.  Deploy your application. Use the ```sam deploy --guided``` command to deploy your application. This will create the AWS resources defined in your template and deploy your application code.
@@ -261,6 +263,7 @@ Open postman and send a post request to your end point.
 
 Currently, The endpoints we have can be accessed by any body and that is not what we want.
 Lets add Authorization such that without the Cognito token, you cannot access our API's
+
 ## Adding Authorization with Cognito
 
 To Add authorization with cognito follow the following steps.
