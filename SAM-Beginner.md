@@ -66,7 +66,10 @@ you can delete all files except ```samconfig.toml``` and ```template.yaml```.
 The first lambda will be to ```create/insert``` an item.
 In the ```src``` folder create file with name ```createWeatherHandler.py```
 
-2. Create a lambda handler function that is used to create items on dynamodb
+ Create a lambda handler function that is used to create items on dynamodb.
+
+ A ```POST``` request is sent through an ```API``` that contains ```weather``` infomation in the body.
+
 
   ```python
     import boto3
@@ -87,6 +90,21 @@ In the ```src``` folder create file with name ```createWeatherHandler.py```
 [Event](https://aws-lambda-for-python-developers.readthedocs.io/en/latest/02_event_and_context/)  is the data that's passed to the function upon execution.
 
 [Context](https://aws-lambda-for-python-developers.readthedocs.io/en/latest/02_event_and_context/) is a Python objects that implements methods and has attributes. It's main role is to provide information about the current execution environment.
+
+#### How item gets to the database(dynamodb)
+
+   A ```POST``` request is sent through an ```API``` that contains ```weather``` information in the body which ```triggers``` the function to ```insert/create``` ```weather``` item in ```dynamodb```.
+
+   ```python 
+   Weather = json.loads(event['body'])['Weather']
+   ```
+   The above code extracts ```weather data``` into a variable ```weather```.
+
+  ```python
+   dynamodb_client.put_item(TableName='WeatherData', Item={'id': {'S': id}, 'Weather': {'S': Weather}})
+  ```  
+  The code above creates the weather item in ```dynamodb``` and returns ```status code 200```
+
 
 You can print out the ```event``` and the ```context``` to see their contents. (To see this when the api is invoke, open your AWS account and search for lambda, open the lambda function with the corresponding ```createWeather```, Click on ```monitor``` and click on ```Cloudwatch```)
 
