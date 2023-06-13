@@ -1,4 +1,4 @@
-## Building A Secured CRUD API with Severless Architecture.
+## Building A Serverless REST API with AWS SAM,TypeScript and API GATEWAY.
 
 By the end of this post, you should be able to create a serverless secured api.
 
