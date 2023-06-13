@@ -1,14 +1,25 @@
-# Building an API with SAM + Python + Cognito + Dynamodb + API Gateway + Lambda
 
-This doc if focused on building authorization api that only users with cognito token can access the api and perform CRUD operations.
+# Building a Serverless REST API with SAM, PYTHON and API GATEWAY
 
-#### Requirements
+## Problem Statement
+
+
+In this project, we'll see how to build a serverless rest api using aws SAM to provision 
+our infrastructure, api gateway for authorizing,authenticating and creating api endpoints and 
+python for defining the content of our lambdas.
+
+## Prerequisite
 1. Python
-2. SAM
-3. Aws account
+2. AWS SAM CLI
+3. AWS account
 
 
-jksjdlkskd
+## AWS Services used
+
+-
+
+
+## Creating an SAM Project
 1. Initialize a new SAM application. Use the ```sam init``` command to initialize a new SAM application. This will create a directory for your application and download a default template.
 
 
@@ -50,7 +61,7 @@ The final folder structure
     ├── README.md
     └── template.yaml
 
-Open you app.py and import the neccessary libraries.
+Open you `app.py` and import the necessary libraries.
 
     import boto3
     import json
@@ -61,6 +72,9 @@ Open you app.py and import the neccessary libraries.
 
 
 
+## Create Lambda Function
+
+The first lambda w
 2. Create a lambda handler function that is used to create items on dynamodb
 
 
