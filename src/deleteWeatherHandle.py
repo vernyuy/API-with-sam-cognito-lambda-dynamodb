@@ -2,8 +2,7 @@ import boto3
 import json
 import random
 
-dynamodb_client = boto3.client('dynamodb')
-
+dynamodb = boto3.resource('dynamodb')
 
 def DeleteWeather(event, context):
     table = dynamodb.Table('WeatherData')

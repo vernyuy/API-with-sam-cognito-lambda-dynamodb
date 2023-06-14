@@ -8,3 +8,4 @@ confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
 disable_rollback = true
 image_repositories = []
+parameter_overrides = "UserPoolId=\"eu-west-1_dDfqIG226\" ClientName=\"test1\" UserPoolName=\"test1\""

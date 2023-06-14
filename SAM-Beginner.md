@@ -14,6 +14,7 @@ python for defining the content of our lambdas.
 3. [ AWS SAM CLI](https://github.com/aws/aws-sam-cli/releases/latest/download/AWS_SAM_CLI_64_PY3.msi). AWS Serverless Application Model Command Line Interface, provides a Lambda-like execution environment that lets you locally build, test, and debug applications defined by SAM templates or through the AWS Cloud Development Kit (CDK)
 4. [Python](https://www.python.org/ftp/python/3.11.4/python-3.11.4-amd64.exe). The programming language used in this project
 5. [VS Code](https://code.visualstudio.com/download) or Your favourite text editor.
+6. [Postman](https://www.postman.com/downloads/). Postman is an API platform for building and using APIs. Postman simplifies each step of the API lifecycle and streamlines collaboration so you can create better APIs—faster.
 
 
 ## AWS Services used
@@ -71,11 +72,43 @@ In the ```src``` folder create file with name ```createWeatherHandler.py```
  A ```POST``` request is sent through an ```API``` that contains ```weather``` infomation in the body.
 
 
+#### Methods used.
+
+The line below creates an instance of ```dynamodb_client```
+```python
+  dynamodb_client = boto3.client('dynamodb')
+  ```
+
+  ```loads()``` parses JSON into a Python dictionary or list
+
+
+```python
+ json.loads(event['body'])
+ ```
+
+```put_item()``` method that takes ```table name``` of type ```string```, ```Item``` of type dictionary as arguments and ```create/insert``` in the specified table
+```python
+dynamodb_client.put_item(TableName='WeatherData', Item={'id': {'S': id}, 'Weather': {'S': Weather}})
+      
+ ```
+```randrange()``` takes two arguments ```lower bound``` , ```upper bound``` and return a random number withing the boundaries.
+
+
+```python
+id = random.randrange(100, 999)
+ ```
+
+```str()``` used to parse ```numbers/integers``` to ```Strings```
+
+
+**Final Lambda to ```create/insert``` a ```weather``` item to ```WeatherData``` table in ```Dynamodb```**
+
   ```python
     import boto3
     import json
     import random
     
+    dynamodb_client = boto3.client('dynamodb')
 
     def createWeather(event, context):
         Weather = json.loads(event['body'])['Weather']
@@ -86,29 +119,18 @@ In the ```src``` folder create file with name ```createWeatherHandler.py```
             'body': 'Successfully inserted data!'
         }
   ```
-##### Function Arguments
+### Lambda Arguments
 [Event](https://aws-lambda-for-python-developers.readthedocs.io/en/latest/02_event_and_context/)  is the data that's passed to the function upon execution.
 
 [Context](https://aws-lambda-for-python-developers.readthedocs.io/en/latest/02_event_and_context/) is a Python objects that implements methods and has attributes. It's main role is to provide information about the current execution environment.
 
-#### How item gets to the database(dynamodb)
 
-   A ```POST``` request is sent through an ```API``` that contains ```weather``` information in the body which ```triggers``` the function to ```insert/create``` ```weather``` item in ```dynamodb```.
+You can  ```print(event)``` and  ```print(context)``` to see their contents. 
 
-   ```python 
-   Weather = json.loads(event['body'])['Weather']
-   ```
-   The above code extracts ```weather data``` into a variable ```weather```.
+*To see ```event``` and ```context``` when the api is invoke, open your AWS account and search for lambda, open the lambda function with the corresponding ```createWeather```, Click on ```monitor``` and click on ```Cloudwatch```*
 
-  ```python
-   dynamodb_client.put_item(TableName='WeatherData', Item={'id': {'S': id}, 'Weather': {'S': Weather}})
-  ```  
-  The code above creates the weather item in ```dynamodb``` and returns ```status code 200```
-
-
-You can print out the ```event``` and the ```context``` to see their contents. (To see this when the api is invoke, open your AWS account and search for lambda, open the lambda function with the corresponding ```createWeather```, Click on ```monitor``` and click on ```Cloudwatch```)
-
-3. Save your file and open ```template.yaml``` file
+#### Adding ```createLambda``` to ```template.yaml```
+Save your file and open ```template.yaml``` file
 
 ```yaml
 Resources
@@ -134,8 +156,7 @@ Resources
           Properties:
             Path: /
             Method: POST
-            RestApiId: !Ref MyApi
-```
+ ```
 4. Configure dynamodb table in ```yaml``` by adding the code snippet bellow.
 ```yaml
   DynamoDBTable:
@@ -146,11 +167,37 @@ Resources
 ## Get Weather Lambda Function
 Create a new file ```getWeatherHandler.py``` in ```src``` folder and add the code bellow 
 
+
+####  Methods used.
+
+The line below creates an instance of ```dynamodb``` ```resource```
+```python
+  dynamodb = boto3.resource('dynamodb')
+  ```
+
+  ```Table()``` that takes ```table name``` as parameter to create an instance of that ```dynamodb table```
+
+
+```python
+ table = dynamodb.Table('TableName')
+ ```
+
+```scan()``` method that takes ```table name``` as argument, ```retrieves``` all the items in dynamodb
+```python
+table.scan(TableName='WeatherData')
+ ```
+
+```dumps() ``` converts the python ```dictionary``` to ```json```
+
+```python
+  json.dumps(response['Items'])
+ ```
+**Final Lambda to ```get``` all ```weather``` from ```WeatherData``` table in ```Dynamodb```**
   ```python
     import boto3
     import json
-    import random
-
+    
+    dynamodb = boto3.resource('dynamodb')
 
     def getAllWeather(event, context):
       table = dynamodb.Table('WeatherData')
@@ -161,6 +208,10 @@ Create a new file ```getWeatherHandler.py``` in ```src``` folder and add the cod
         'body': json.dumps(response['Items'])
       }
   ```
+
+
+
+
 
 ##### Adding the function in ```yaml``` 
 ```yaml
@@ -181,17 +232,31 @@ Create a new file ```getWeatherHandler.py``` in ```src``` folder and add the cod
           Properties:
             Path: /
             Method: GET
-            RestApiId: !Ref MyApi
 ```
 ## Get Weather Lambda Function
 Create a new file ```deleteWeatherHandler.py``` in ```src``` folder and add the code bellow 
+
+#### Methods used
+```delete_item()``` takes the ```id``` as the ```Key``` and removes the item from dynamodb.
+
+```python
+table.delete_item(
+        Key = {
+            "id": key
+        }
+    )
+ ```
+
+**Final Lambda to ```delete``` a single ```weather``` from ```WeatherData``` table in ```Dynamodb```**
+
 
 ```python
 
 import boto3
 import json
-import random
 
+
+dynamodb = boto3.resource('dynamodb')
 
 def DeleteWeather(event, context):
     table = dynamodb.Table('WeatherData')
@@ -225,11 +290,20 @@ def DeleteWeather(event, context):
           Type: Api
           Properties:
             Path: /
-            Method: DELETE 
-            RestApiId: !Ref MyApi 
+            Method: DELETE
  ```
 ## Update Weather Lambda Function
 An item already registered in dynamodb can be update by providing its ```id``` and the ```attributes``` you want to update with new content.
+#### Methods used
+```put_item()``` takes the ```table name``` and data for the item to be updated e.g ```id``` which is ```required```, ```weather```
+
+```python
+table.put_item(
+        Key = {
+            "id": key
+        }
+    )
+ ```
 
 Create a new file ```updateWeatherHandler.py``` in ```src``` folder and add the code bellow 
 
@@ -237,7 +311,6 @@ Create a new file ```updateWeatherHandler.py``` in ```src``` folder and add the 
 ```python
 import boto3
 import json
-import random
 
 
 def updateWeather(event, context):
@@ -271,11 +344,44 @@ Final Project folder structure
 
 ## Testing the end points
 
-Open postman and send a post request to your end point.
+```Postman``` will be used to ```test``` our ```endpoints```
 
+##### 1. Create Weather Item.
+**Method :** ```POST```
+
+**Body Payload :**
+```json
+{
+  "Weather": "Rainy"
+}
+```
+
+**Response Payload :**
+```json
+{
+  "Message": "Successfully Inserted"
+}
+```
+
+**Postman Preview**
 ![postman post request](img/postPostman.png)
 
-Open postman and send a post request to your end point.
+
+#### 2. Get All Weather Item.
+Open postman and send a get request to your end point.
+**Method :** ```GET```
+
+**Body Payload :**
+
+**Response Payload :**
+```json
+[{
+  "id": "123",
+  "Weather": "Rainy"
+}]
+ ```
+
+ **Postman Preview**
 
 ![postman post request](img/getPostman.png)
 
@@ -284,27 +390,36 @@ Lets add Authorization such that without the Cognito token, you cannot access ou
 
 ## Adding Authorization with Cognito
 
-To Add authorization with cognito follow the following steps.
-1. Open your aws console and Create cognito user pool
-2. Configure your ```template.yaml``` file
-3. Add the below code to ```MyApi``` in the ```resources``` in your ```yaml file```
+Implementing ```cognito``` ```authorization``` to the ```Rest APIs```
+
+
+##### Creating cognito user pool
+
+ Open your aws console and Create cognito user pool. Click [here]() for help.
+
+##### YAML cognito configuration
+
+To configure authorization with with ```cognito```, open ```template.yaml``` file
+
+Add the below code to ```MyApi```  ```resource``` in your ```yaml file```
 ```yaml
       Cors: "'*'"
       Auth:
         DefaultAuthorizer: CognitoAuthorizer
         Authorizers:
           CognitoAuthorizer:
-            UserPoolArn: yourUserPoolArn
+            UserPoolArn: !GetAtt WeatherUserPool.Arn
   ```
 
 
-1. Add user cognito properties to the ```resources``` int the ```yaml file```
+ Add ```cognitoUserPool``` and ```UserPoolClient``` configuration ```resource``` in  ```yaml file```
+
 
 ```yaml
   WeatherUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
-      UserPoolName: !GetAtt UserPoolName
+      UserPoolName: !Ref UserPoolName
       Policies:
         PasswordPolicy:
           MinimumLength: 8
@@ -318,18 +433,26 @@ To Add authorization with cognito follow the following steps.
   WeatherUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
-      UserPoolId: !GetAtt userPoolId
-      ClientName: !GetAtt clientName
-      GenerateSecret: false     
+      UserPoolId: !Ref UserPoolId
+      ClientName: !Ref ClientName
+      GenerateSecret: false    
 ```
 
-Get the final template.yaml file [here]().
+#### Referencing RestApiId
+
+Add the code bellow as ```ApiEvent``` ```property``` in all the the ```lambda``` functions.
+
+```yaml
+RestApiId: !Ref MyApi
+ ```
+
+Get the final ```template.yaml``` file [here]().
 
 Run ```sam build``` to build your recent changes.
 
 Run ```sam deploy``` to deploy your recent changes.
 
-if you try to access your api again
+Try to access your api again.
 
 ![](img/postUnAuth.png)
 

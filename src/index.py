@@ -7,7 +7,7 @@ from boto3.dynamodb.conditions import Key, Attr
 import random
 
 dynamodb_client = boto3.client('dynamodb')
-
+dynamodb = boto3.resource('dynamodb')
 
 
 def lambda_handler(event, context):

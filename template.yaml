@@ -35,7 +35,6 @@ Resources:
   GetWeatherFunction:
     Type: AWS::Serverless::Function
     Description: 'Lambda function inserts data into DynamoDB table'
-    DependsOn: Cognito
     Properties:
       FunctionName: GetAllWeatherFunction
       Handler: getWeatherHandler.getAllWeather
@@ -93,7 +92,7 @@ Resources:
   WeatherUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
-      UserPoolName: !GetAtt UserPoolName.userPoolName
+      UserPoolName: !Ref UserPoolName
       Policies:
         PasswordPolicy:
           MinimumLength: 8
@@ -107,15 +106,29 @@ Resources:
   WeatherUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
-      UserPoolId: !GetAtt WeatherUserPool.userPoolId
-      ClientName: !GetAtt WeatherUserPool.clientName
+      UserPoolId: !Ref UserPoolId
+      ClientName: !Ref ClientName
       GenerateSecret: false       
 
   DynamoDBTable:
     Type: AWS::Serverless::SimpleTable
     Properties:
       TableName: WeatherData
+
+Parameters:
+  UserPoolId:
+    Type: String
+    Description: weather user pool client name
+  
+  ClientName:
+    Type: String
+    Description: weather user pool id name
+  
+  UserPoolName:
+    Type: String
+    Description: weather user pool id name
+
 Outputs:
   EndpointUrl:
     Description: 'HTTP REST endpoint URL'
-    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/weather'
+    Value: !Sub 'https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/weather'
