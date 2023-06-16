@@ -1,11 +1,11 @@
 version = 0.1
 [default.deploy.parameters]
-stack_name = "test1"
+stack_name = "samcrud"
 resolve_s3 = true
-s3_prefix = "test1"
+s3_prefix = "samcrud"
 region = "eu-west-1"
 confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
 disable_rollback = true
 image_repositories = []
-parameter_overrides = "UserPoolId=\"eu-west-1_dDfqIG226\" ClientName=\"test1\" UserPoolName=\"test1\""
+parameter_overrides = "Client=\"https://weather-api-sam-010.com\" ClientDomain=\"https://localhost\" TableName=\"WeatherDataTable\""

@@ -1,26 +1,55 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Serverless patterns - Amazon API Gateway to AWS Lambda to Amazon DynamoDB
+
+# Parameters to be provided
+Parameters:
+  Client:
+    Description: Client website for authentication redirects and cors (must start with https://)
+    Type: String
+    Default: https://myapp.com
+
+  ClientDomain:
+    Type: String
+    Description: Domain allowed to use this UserPool
+
+  TableName:
+    Type: String
+    Description: Dynamodb table name.
+
+Globals:
+  Function:
+    Runtime: python3.10
+    CodeUri: src/
+    Environment:
+      Variables:
+        TABLE_NAME: !Ref TableName
+
+  Api:
+    EndpointConfiguration: REGIONAL
+    TracingEnabled: True
+    Cors:
+      AllowMethods: "'OPTIONS,POST,GET,PUT,DELETE'"
+      AllowHeaders: "'Content-Type'"
+      AllowOrigin:  "'*'"
+
 Resources:
-  MyApi:
+  WeatherApi:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
-      Cors: "'*'"
       Auth:
         DefaultAuthorizer: CognitoAuthorizer
         Authorizers:
           CognitoAuthorizer:
-            UserPoolArn: !GetAtt WeatherUserPool.Arn
+            UserPoolArn: !GetAtt UserPool.Arn
 
   CreateWeather:
     Type: AWS::Serverless::Function
     Description: 'Lambda function inserts data into DynamoDB table'
     Properties:
-      FunctionName: CreateWeather
-      Handler: createWeatherHandler.lambda_handler
-      Runtime: python3.10
-      CodeUri: src/
+      FunctionName: CreateWeatherItem
+      Handler: create_weather.lambda_handler
       Policies:
         DynamoDBCrudPolicy:
           TableName: !Ref DynamoDBTable
@@ -28,18 +57,16 @@ Resources:
         ApiEvent:
           Type: Api
           Properties:
-            Path: /
+            Path: /create-weather
             Method: POST
-            RestApiId: !Ref MyApi
+            RestApiId: !Ref WeatherApi
 
   GetWeatherFunction:
     Type: AWS::Serverless::Function
-    Description: 'Lambda function inserts data into DynamoDB table'
+    Description: 'Lambda function to retrieve weather item from DynamoDB table'
     Properties:
-      FunctionName: GetAllWeatherFunction
-      Handler: getWeatherHandler.getAllWeather
-      Runtime: python3.10
-      CodeUri: src/
+      FunctionName: GetWeatherItems
+      Handler: get_weather.lambda_handler
       Policies:
         DynamoDBCrudPolicy:
           TableName: !Ref DynamoDBTable
@@ -49,16 +76,14 @@ Resources:
           Properties:
             Path: /
             Method: GET
-            RestApiId: !Ref MyApi
+            RestApiId: !Ref WeatherApi
             
   DeleteWeatherFunction:
     Type: AWS::Serverless::Function
-    Description: 'Lambda function inserts data into DynamoDB table'
+    Description: 'Lambda function remove weather item from DynamoDB table'
     Properties:
-      FunctionName: DeleteWeatherFunction
-      Handler: DeleteWeatherHandler.DeleteWeather
-      Runtime: python3.10
-      CodeUri: src/
+      FunctionName: DeleteWeatherItem
+      Handler: delete_weather.lambda_handler
       Policies:
         DynamoDBCrudPolicy:
           TableName: !Ref DynamoDBTable
@@ -66,18 +91,16 @@ Resources:
         ApiEvent:
           Type: Api
           Properties:
-            Path: /
-            Method: DELETE 
-            RestApiId: !Ref MyApi 
+            RestApiId: !Ref WeatherApi
+            Path: /delete-weather/{id}
+            Method: DELETE  
 
   UpdateLambdaFunction:
     Type: AWS::Serverless::Function
-    Description: 'Lambda function inserts data into DynamoDB table'
+    Description: 'Lambda function updates weather item in DynamoDB table'
     Properties:
-      FunctionName: UpdateWeatherFunction
-      Handler: updateWeatherHandler.updateWeather
-      Runtime: python3.10
-      CodeUri: src/
+      FunctionName: UpdateWeatherItem
+      Handler: update_weather.lambda_handler
       Policies:
         DynamoDBCrudPolicy:
           TableName: !Ref DynamoDBTable
@@ -85,50 +108,60 @@ Resources:
         ApiEvent:
           Type: Api
           Properties:
-            RestApiId: !Ref MyApi 
-            Path: /
+            RestApiId: !Ref WeatherApi 
+            Path: /update-weather/{id}
             Method: PUT 
 
-  WeatherUserPool:
+  UserPool:
     Type: AWS::Cognito::UserPool
-    Properties:
-      UserPoolName: !Ref UserPoolName
+    Properties: 
+      UserPoolName: WeatherUserPool
       Policies:
         PasswordPolicy:
           MinimumLength: 8
-      UsernameAttributes:
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes: 
         - email
       Schema:
         - AttributeDataType: String
           Name: email
           Required: false
   
-  WeatherUserPoolClient:
+  UserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
-      UserPoolId: !Ref UserPoolId
-      ClientName: !Ref ClientName
-      GenerateSecret: false       
+      UserPoolId: !Ref UserPool
+      GenerateSecret: false  
+      ExplicitAuthFlows:
+        - ALLOW_USER_PASSWORD_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH 
+      SupportedIdentityProviders:
+        - COGNITO
+      CallbackURLs:
+        - !Ref ClientDomain
+      LogoutURLs:
+        - !Ref ClientDomain
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthFlows:
+        - implicit
+      AllowedOAuthScopes:
+        - email
+        - openid
+        - profile    
 
+    # Create a hosted domain for users to signup and login
+  UserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties: 
+      Domain: !Sub weatherauth${AWS::AccountId}
+      UserPoolId: !Ref UserPool
   DynamoDBTable:
     Type: AWS::Serverless::SimpleTable
     Properties:
-      TableName: WeatherData
-
-Parameters:
-  UserPoolId:
-    Type: String
-    Description: weather user pool client name
-  
-  ClientName:
-    Type: String
-    Description: weather user pool id name
-  
-  UserPoolName:
-    Type: String
-    Description: weather user pool id name
+      TableName: !Ref TableName
 
 Outputs:
   EndpointUrl:
     Description: 'HTTP REST endpoint URL'
-    Value: !Sub 'https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/weather'
+    Value: !Sub 'https://${WeatherApi}.execute-api.${AWS::Region}.amazonaws.com/Prod'

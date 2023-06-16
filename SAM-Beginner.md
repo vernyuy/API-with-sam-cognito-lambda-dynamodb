@@ -1,12 +1,20 @@
 
 # Building a Serverless REST API with SAM, PYTHON and API GATEWAY
 
-## Problem Statement
+#### Problem Statement
 
+Problem
+We need to build a `serverless` `weather` `REST API` that is secure and easy to use. The `API` should be able to `store`, `retrieve` `weather data` with respect to the users request. The `API` should also be able to be `authenticated` with `Amazon Cognito`, so that only `authorized` users can access it.
 
-In this project, we'll see how to build a serverless rest api using aws SAM to provision 
-our infrastructure, api gateway for authorizing,authenticating and creating api endpoints and 
-python for defining the content of our lambdas.
+#### Solution:
+We will use `AWS SAM` to `build` and `deploy` the `API`. `SAM` is a `serverless` framework that makes it easy to `build` and `deploy` `serverless` applications on `AWS`. We will use `Python` to write the code for the `API`. `Python` is a popular `programming language` that is well-suited for building `serverless` applications. We will use `Amazon Cognito` to `authenticate` users with the `API`. `Amazon Cognito` is a` cloud-based identity and access management` service that makes it easy to `create` and `manage` `user accounts`. We will use `API Gateway` to expose the API to the internet. A`PI Gateway `is a fully managed service that makes it easy to `create`, `deploy`, and `manage RESTful APIs`.
+
+#### Benefits:
+The benefits of building a `serverless` secured weather REST API with SAM, Python, Amazon Cognito, and API Gateway include:
+
+`Security`: The API will be secured with Amazon Cognito, so that only authorized users can access it.
+`Scalability`: The API will be scalable, so that it can handle a large number of requests.
+`Cost-effectiveness`: The API will be cost-effective, as it will be hosted on AWS Lambda, which is a serverless compute service that only charges for the amount of time that the API is running.
 
 ## Prerequisite
 1. [AWS Account](https://aws.amazon.com/). Amazon Web Services (AWS) is the world's most comprehensive and broadly adopted cloud, offering over 200 fully featured services from data centers globally.
