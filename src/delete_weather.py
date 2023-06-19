@@ -1,10 +1,11 @@
-import boto3
 import json
 import os
 
+import boto3
 
 dynamodb = boto3.resource('dynamodb')
 table_name = os.environ.get("TABLE_NAME")
+
 
 def lambda_handler(event, context):
     table = dynamodb.Table(table_name)
@@ -14,15 +15,13 @@ def lambda_handler(event, context):
     }
     print(event)
     try:
-        table.delete_item(Key = id_key)
+        table.delete_item(Key=id_key)
         return {
-            'statusCode' : 200,
+            'statusCode': 200,
             'body': "Weather Delete Succeessfull"
         }
-    except:
+    except table_name:
         return {
-            'statusCode' : 500,
+            'statusCode': 500,
             'body': "An error occured. Weather not deleted"
         }
-    
-
