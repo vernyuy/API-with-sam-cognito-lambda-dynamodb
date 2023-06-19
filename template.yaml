@@ -3,20 +3,6 @@ Transform: AWS::Serverless-2016-10-31
 Description: Serverless patterns - Amazon API Gateway to AWS Lambda to Amazon DynamoDB
 
 # Parameters to be provided
-Parameters:
-  Client:
-    Description: Client website for authentication redirects and cors (must start with https://)
-    Type: String
-    Default: https://myapp.com
-
-  ClientDomain:
-    Type: String
-    Description: Domain allowed to use this UserPool
-
-  TableName:
-    Type: String
-    Description: Dynamodb table name.
-
 Globals:
   Function:
     Runtime: python3.10
@@ -138,10 +124,6 @@ Resources:
         - ALLOW_REFRESH_TOKEN_AUTH 
       SupportedIdentityProviders:
         - COGNITO
-      CallbackURLs:
-        - !Ref ClientDomain
-      LogoutURLs:
-        - !Ref ClientDomain
       AllowedOAuthFlowsUserPoolClient: true
       AllowedOAuthFlows:
         - implicit
@@ -159,9 +141,9 @@ Resources:
   DynamoDBTable:
     Type: AWS::Serverless::SimpleTable
     Properties:
-      TableName: !Ref TableName
+      TableName: WeatherDataTable
 
 Outputs:
   EndpointUrl:
-    Description: 'HTTP REST endpoint URL'
+    Description: 'Weather REST API endpoint URL'
     Value: !Sub 'https://${WeatherApi}.execute-api.${AWS::Region}.amazonaws.com/Prod'

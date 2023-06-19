@@ -14,9 +14,8 @@ def lambda_handler(event, context):
       'statusCode': 200,
       'body': json.dumps(response['Items'])
     }
-
   except:
     return {
       'statusCode': 500,
-      'Message': "Unable to get items"
+      'message': "Unable to get items"
     }

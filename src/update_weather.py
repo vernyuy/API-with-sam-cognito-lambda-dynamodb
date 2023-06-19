@@ -3,7 +3,7 @@ import json
 import os
 
 
-dynamodb_client = boto3.client('dynamodb')
+dynamodb_client = boto3.resource('dynamodb')
 table_name = os.environ.get("TABLE_NAME")
 
 
@@ -13,9 +13,9 @@ def lambda_handler(event, context):
   print(event)
   key = json.loads(event['pathParameters'])['id']
   item={
-    'id': {'S': key}, 
-    'Weather': {'S': weather},
-    'Town': {'S': town}
+    'id': key, 
+    'weather': weather,
+    'town': town
   }
   try:
     dynamodb_client.put_item(TableName=table_name, Item=item)
