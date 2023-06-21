@@ -52,7 +52,7 @@ Resources:
     Description: 'Lambda function to retrieve weather item from DynamoDB table'
     Properties:
       FunctionName: GetWeatherItems
-      Handler: get_weather.lambda_handler
+      Handler: get_weathers.lambda_handler
       Policies:
         DynamoDBCrudPolicy:
           TableName: !Ref DynamoDBTable
@@ -61,6 +61,24 @@ Resources:
           Type: Api
           Properties:
             Path: /
+            Method: GET
+            RestApiId: !Ref WeatherApi
+  
+
+  GetSingleWeatherFunction:
+    Type: AWS::Serverless::Function
+    Description: 'Lambda function to retrieve weather item from DynamoDB table'
+    Properties:
+      FunctionName: GetWeatherItem
+      Handler: get_single_weather.lambda_handler
+      Policies:
+        DynamoDBCrudPolicy:
+          TableName: !Ref DynamoDBTable
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /weather/{id}
             Method: GET
             RestApiId: !Ref WeatherApi
             
