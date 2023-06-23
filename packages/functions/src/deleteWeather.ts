@@ -1,9 +1,8 @@
 import { DynamoDB } from "aws-sdk";
-import { Table } from "sst/node/table";
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 
 const dynamoDb = new DynamoDB.DocumentClient();
-
+const tableName = process.env.TABLENAME
 export async function main(
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {
@@ -18,13 +17,13 @@ export async function main(
       body: JSON.stringify({ error: true }),
     };
   }else{
-    dynamoDb.delete({TableName:'sst-weather-crud-rest-api-ts-weatherDataSST', Key:{
+    dynamoDb.delete({TableName:tableName, Key:{
         id: weatherId
     }}).promise()
     return {
       statusCode: 200,
       body: JSON.stringify({
-        "message": "Weather updated successfully"
+        "message": "Weather deleted successfully"
       }),
     };
   }

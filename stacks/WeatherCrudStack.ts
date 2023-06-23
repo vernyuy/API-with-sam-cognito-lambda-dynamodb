@@ -4,6 +4,7 @@ export function WeatherCrudStack({ stack }: StackContext) {
   // create the http api
   
   const table = new Table(stack, "weatherDataSST", {
+    tableName: "weatherDataSST",
     fields: {
       id: "string",
     },

@@ -4,7 +4,7 @@ import { WeatherCrudStack } from "./stacks/WeatherCrudStack";
 export default {
   config(_input) {
     return {
-      name: "rest-api-ts",
+      name: "weather-crud-api",
       region: "eu-west-1",
     };
   },

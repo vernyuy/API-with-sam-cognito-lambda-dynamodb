@@ -1,22 +1,8 @@
-// import { DynamoDB } from "aws-sdk";
-// import { Table } from "sst/node/table";
-
-// const dynamoDb = new DynamoDB.DocumentClient();
-
-// const putParams = {
-//     TableName: "sst-weather-crud-rest-api-ts-weatherDataSST",
-//     Key: {
-//       id: "123",
-//     }
-//   };
-//   await dynamoDb.update(putParams).promise();
-
 import { DynamoDB } from "aws-sdk";
-import { Table } from "sst/node/table";
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 
 const dynamoDb = new DynamoDB.DocumentClient();
-
+const tableName = process.env.TABLENAME
 export async function main(
   event: any
 ): Promise<APIGatewayProxyResult> {
@@ -31,7 +17,7 @@ export async function main(
     town: town
   }
   console.log("body", event.body)
-  const response = await dynamoDb.put({Item: data, TableName: "sst-weather-crud-rest-api-ts-weatherDataSST"}).promise()
+  const response = await dynamoDb.put({Item: data, TableName: tableName}).promise()
 
   console.log("response", response)
   if(response !== null) {
