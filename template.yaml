@@ -11,24 +11,12 @@ Globals:
       Variables:
         TABLE_NAME: !Ref TableName
 
-  Api:
-    EndpointConfiguration: REGIONAL
-    TracingEnabled: True
-    Cors:
-      AllowMethods: "'OPTIONS,POST,GET,PUT,DELETE'"
-      AllowHeaders: "'Content-Type'"
-      AllowOrigin:  "'*'"
 
 Resources:
   WeatherApi:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
-      Auth:
-        DefaultAuthorizer: CognitoAuthorizer
-        Authorizers:
-          CognitoAuthorizer:
-            UserPoolArn: !GetAtt UserPool.Arn
 
   CreateWeather:
     Type: AWS::Serverless::Function
@@ -45,7 +33,6 @@ Resources:
           Properties:
             Path: /create-weather
             Method: POST
-            RestApiId: !Ref WeatherApi
 
   GetWeatherFunction:
     Type: AWS::Serverless::Function
@@ -62,7 +49,6 @@ Resources:
           Properties:
             Path: /
             Method: GET
-            RestApiId: !Ref WeatherApi
   
 
   GetSingleWeatherFunction:
@@ -80,7 +66,6 @@ Resources:
           Properties:
             Path: /weather/{id}
             Method: GET
-            RestApiId: !Ref WeatherApi
             
   DeleteWeatherFunction:
     Type: AWS::Serverless::Function
@@ -95,7 +80,6 @@ Resources:
         ApiEvent:
           Type: Api
           Properties:
-            RestApiId: !Ref WeatherApi
             Path: /delete-weather/{id}
             Method: DELETE  
 
@@ -111,51 +95,12 @@ Resources:
       Events:
         ApiEvent:
           Type: Api
-          Properties:
-            RestApiId: !Ref WeatherApi 
+          Properties: 
             Path: /update-weather/{id}
             Method: PUT 
-
-  UserPool:
-    Type: AWS::Cognito::UserPool
-    Properties: 
-      UserPoolName: WeatherUserPool
-      Policies:
-        PasswordPolicy:
-          MinimumLength: 8
-      AutoVerifiedAttributes:
-        - email
-      UsernameAttributes: 
-        - email
-      Schema:
-        - AttributeDataType: String
-          Name: email
-          Required: false
   
-  UserPoolClient:
-    Type: AWS::Cognito::UserPoolClient
-    Properties:
-      UserPoolId: !Ref UserPool
-      GenerateSecret: false  
-      ExplicitAuthFlows:
-        - ALLOW_USER_PASSWORD_AUTH
-        - ALLOW_REFRESH_TOKEN_AUTH 
-      SupportedIdentityProviders:
-        - COGNITO
-      AllowedOAuthFlowsUserPoolClient: true
-      AllowedOAuthFlows:
-        - implicit
-      AllowedOAuthScopes:
-        - email
-        - openid
-        - profile    
 
-    # Create a hosted domain for users to signup and login
-  UserPoolDomain:
-    Type: AWS::Cognito::UserPoolDomain
-    Properties: 
-      Domain: !Sub weatherauth${AWS::AccountId}
-      UserPoolId: !Ref UserPool
+
   DynamoDBTable:
     Type: AWS::Serverless::SimpleTable
     Properties:

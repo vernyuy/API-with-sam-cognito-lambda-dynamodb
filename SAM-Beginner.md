@@ -3,17 +3,21 @@
 
 #### Problem Statement
 
-Problem
-We need to build a `serverless` `weather` `REST API` that is secure and easy to use. The `API` should be able to `store`, `retrieve` `weather data` with respect to the users request. The `API` should also be able to be `authenticated` with `Amazon Cognito`, so that only `authorized` users can access it.
+#### Problem
+We need to build a `serverless` `weather` `REST API` that is easy to use. The `API` should be able to `store`, `retrieve` `weather data` with respect to the users request.
 
 #### Solution:
-We will use `AWS SAM` to `build` and `deploy` the `API`. `SAM` is a `serverless` framework that makes it easy to `build` and `deploy` `serverless` applications on `AWS`. We will use `Python` to write the code for the `API`. `Python` is a popular `programming language` that is well-suited for building `serverless` applications. We will use `Amazon Cognito` to `authenticate` users with the `API`. `Amazon Cognito` is a` cloud-based identity and access management` service that makes it easy to `create` and `manage` `user accounts`. We will use `API Gateway` to expose the API to the internet. A`PI Gateway `is a fully managed service that makes it easy to `create`, `deploy`, and `manage RESTful APIs`.
+We will use `AWS SAM` to `build` and `deploy` the `API`. `SAM` is a `serverless` framework that makes it easy to `build` and `deploy` `serverless` applications on `AWS`. We will use `Python` to write the code for the `API`. `Python` is a popular `programming language` that is well-suited for building `serverless` applications. `API Gateway `is a fully managed service that makes it easy to `create`, `deploy`, and `manage RESTful APIs`.
 
 #### Benefits:
-The benefits of building a `serverless` secured weather REST API with SAM, Python, Amazon Cognito, and API Gateway include:
+The benefits of building a `serverless` weather REST API with SAM, Python and API Gateway include:
 
-`Security`: The API will be secured with Amazon Cognito, so that only authorized users can access it.
+A good start for beginners to master `AWS Service` with hands on projects
+
+Easy understanding of IaC (Infrastructure as code) for beginners.
+
 `Scalability`: The API will be scalable, so that it can handle a large number of requests.
+
 `Cost-effectiveness`: The API will be cost-effective, as it will be hosted on AWS Lambda, which is a serverless compute service that only charges for the amount of time that the API is running.
 
 ## Prerequisite
@@ -26,15 +30,96 @@ The benefits of building a `serverless` secured weather REST API with SAM, Pytho
 
 
 ## AWS Services used
+
 1. [AWS SAM ](https://aws.amazon.com/serverless/sam/) To define the infrastructure : The AWS Serverless Application Model (SAM) is an open-source framework for building serverless applications. It provides shorthand syntax to express functions, APIs, databases, and event source mappings. With just a few lines per resource, you can define the application you want and model it using YAML. There is no additional charge to use AWS SAM. You pay for the AWS resources created using SAM in the same manner as if you created them manually. You only pay for what you use, as you use it. There are no minimum fees and no required upfront commitments.
-2. [Amazon Cognito](https://aws.amazon.com/cognito/): With Amazon Cognito, you can add user sign-up and sign-in features and control access to your web and mobile applications. This service is free for less than 50,000 MAUs(monthly active users)
-3. [Amazon API Gateway](https://aws.amazon.com/api-gateway/):Amazon API Gateway is a fully managed service that makes it easy for developers to create, publish, maintain, monitor, and secure APIs at any scale. With Amazon API Gateway, you only pay when your APIs are in use. There are no minimum fees or upfront commitments
-4. [AWS Lambda](https://aws.amazon.com/lambda/) : AWS Lambda is a serverless, event-driven compute service that lets you run code for virtually any type of application or backend service without provisioning or managing servers. You can trigger Lambda from over 200 AWS services and software as a service (SaaS) applications, and only pay for what you use. Cost of using lambda functions.
+2. [Amazon API Gateway](https://aws.amazon.com/api-gateway/):Amazon API Gateway is a fully managed service that makes it easy for developers to create, publish, maintain, monitor, and secure APIs at any scale. With Amazon API Gateway, you only pay when your APIs are in use. There are no minimum fees or upfront commitments
+3. [AWS Lambda](https://aws.amazon.com/lambda/) : AWS Lambda is a serverless, event-driven compute service that lets you run code for virtually any type of application or backend service without provisioning or managing servers. You can trigger Lambda from over 200 AWS services and software as a service (SaaS) applications, and only pay for what you use. Cost of using lambda functions.
  ![](img/lp.png)
+
+### Installing SAM CLI
+
+To install `AWS SAM CLI`, click [here](https://aws.amazon.com/serverless/sam/) to download `SAM CLI` for your device `OS`.
+
+Launch the installer package (the downloaded file) and install SAM CLI
+
+![](./img/sin.png)
+
+Click `Next` to continue.
+
+![](img/sis.png)
+
+You can either `Remove` `SAM` from you device if you already have it installed, `Repair error` by fixing missing and corrupt files, `Change` that allows you change the way features are installed in your device.
+
+Click on `Change` to continue.
+
+![](img/sicl.png)
+
+click `Next` to continue installation on default location.
+
+![](img/ai.png)
+
+When the installation is done, click `Finish` button.
+
+![](img/sif.png)
+
+Now open you `terminal` or `command prompt` by clicking  `start` or `windows` on the keyboard and search for `cmd` and hit `enter`
+
+Run the command `sam --version` to check the `version` of `SAM` installed
+
+![](img/sv.png)
+
+`SAM CLI`, `version 1.84.0`
+
+
+
+
+### Installing AWS CLI
+
+To install `AWS CLI`, click [here](https://aws.amazon.com/serverless/sam/) to download `AWS CLI` for your device `OS`.
+
+Launch the installer package (the downloaded file) and install SAM CLI
+
+![](./img/as.png)
+
+Click `Next` to continue.
+
+![](img/ac.png)
+
+You can either `Remove` `AWS CLI` from you device if you already have it installed, `Repair error` by fixing missing and corrupt files, `Change` that allows you change the way features are installed in your device.
+
+Click on `Change` to continue.
+
+![](img/af.png)
+
+click `Next` to continue installation on default location.
+
+![](img/ac1.png)
+
+click `Next` to continue installation on default location.
+
+![](img/ai.png)
+
+When installation is done, click `Finish` button. and open `terminal` or `command prompt` and run the command `aws --version`
+
+![](img/av.png)
+
+`aws-cli/1.27.153` AWS CLI version
+`Python/3.*.*` Version of python installed in your device.
+`Windows/10` The OS of your device.
+`botocore/1.29.153` Python library to access AWS services.
+
+
+Now open you `terminal` or `command prompt` by clicking  `start` or `windows` on the keyboard and search for `cmd` and hit `enter`
+
+Run the command `sam --version` to check the `version` of `SAM` installed
+
+![](img/sv.png)
+
+`SAM CLI`, `version 1.84.0`
 
 
 ## Creating a SAM Project
-1. To kick off your new SAM application,With just ```sam init``` command, you'll be on your way to a brand new directory and a set of default templates to work with.
+1. To kick off your new SAM application, `sam init` command, you'll be on your way to a brand new directory and a set of default templates to work with.
 
 
 ```
