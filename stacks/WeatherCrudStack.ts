@@ -3,8 +3,7 @@ import { Api, StackContext, Table } from "sst/constructs";
 export function WeatherCrudStack({ stack }: StackContext) {
   // create the http api
   
-  const table = new Table(stack, "weatherDataSST", {
-    tableName: "weatherDataSST",
+  const table = new Table(stack, "WeatherSST", {
     fields: {
       id: "string",
     },
@@ -14,7 +13,10 @@ export function WeatherCrudStack({ stack }: StackContext) {
   const api = new Api(stack, "api", {
     defaults: {
       function: {
-        bind: [table]
+        bind: [table],
+        environment: {
+          TABLE_NAME: table.tableName,
+        }
       }
     },
     routes: {
@@ -26,6 +28,7 @@ export function WeatherCrudStack({ stack }: StackContext) {
     },
   });
 
+  // weatherApi.attachPermissions([table]);
   // show the api endpoint in the output
   stack.addOutputs({
     apiendpoint: api.url,

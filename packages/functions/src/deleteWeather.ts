@@ -2,7 +2,7 @@ import { DynamoDB } from "aws-sdk";
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 
 const dynamoDb = new DynamoDB.DocumentClient();
-const tableName = process.env.TABLENAME
+const tableName = process.env.TABLE_NAME as string
 export async function main(
   event: APIGatewayProxyEvent
 ): Promise<APIGatewayProxyResult> {

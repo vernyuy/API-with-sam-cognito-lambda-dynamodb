@@ -2,7 +2,7 @@ import { DynamoDB } from "aws-sdk";
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 
 const dynamoDb = new DynamoDB.DocumentClient();
-const tableName = process.env.TABLENAME
+const tableName = process.env.TABLE_NAME as string
 export async function main(
   event: any
 ): Promise<APIGatewayProxyResult> {
@@ -10,17 +10,22 @@ export async function main(
   const weather = JSON.parse(event.body).weather
   const town = JSON.parse(event.body).town
   JSON.parse(event.body).id = weatherId;
-
-  const data = {
-    id: weatherId,
-    weather: weather,
-    town: town
+  console.log("Hello sst")
+  console.log(tableName)
+  const params = {
+    TableName: tableName,
+    Item:{
+      id: weatherId,
+      weather: weather,
+      town: town
+    }
   }
   console.log("body", event.body)
-  const response = await dynamoDb.put({Item: data, TableName: tableName}).promise()
+  try{
+  const response = await dynamoDb.put(params).promise()
 
   console.log("response", response)
-  if(response !== null) {
+  if(!response) {
     return {
       statusCode: 500,
       body: JSON.stringify({
@@ -34,4 +39,13 @@ export async function main(
         "message": "successfully created weather"
     }),
   };
+}catch(err){
+  console.log(err)
+  return {
+    statusCode: 500,
+    body: JSON.stringify({
+      "message": "failed to create weather"
+    })
+  }
+}
 }
